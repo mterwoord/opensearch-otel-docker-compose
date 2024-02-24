@@ -1,0 +1,46 @@
+extensions:
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        include_metadata: true
+        endpoint: "0.0.0.0:4316"
+
+processors:
+  batch:
+  
+  attributes:
+    actions:
+      - key: EnvironmentName
+        action: upsert
+        from_context: metadata.X-Authenticated-User
+  
+exporters:
+  otlp/logs:
+    endpoint: data-prepper:21892
+    tls:
+      insecure: true
+  otlp/metrics:
+    endpoint: data-prepper:21891
+    tls:
+      insecure: true
+  otlp/traces:
+    endpoint: data-prepper:21890
+    tls:
+      insecure: true      
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [attributes,batch]
+      exporters: [otlp/traces]
+    metrics:
+      receivers: [otlp]
+      processors: [attributes,batch]
+      exporters: [otlp/metrics]
+    logs:
+      receivers: [otlp]
+      processors: [attributes,batch]
+      exporters: [otlp/logs]      
