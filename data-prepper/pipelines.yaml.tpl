@@ -11,10 +11,11 @@ otel-logs-pipeline:
     - opensearch:
         hosts: ["https://opensearch-node1:9200"]
         username: "admin"
-        password: "admin"  
+        password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value 
         insecure: true
         index_type: custom
-        index: raw-logs-%{yyyy.MM}
+        #index: raw-logs-%{yyyy.MM}
+        index: raw-logs-${/log.attributes.EnvironmentName}-%{yyyy.MM}
         #max_retries: 20
         bulk_size: 4
 #    - stdout:
@@ -65,12 +66,12 @@ raw-traces-pipeline:
         hosts: [ "https://opensearch-node1:9200" ]
         insecure: true
         username: "admin"
-        password: "admin"
+        password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value
   sink:
     - opensearch:
         hosts: ["https://opensearch-node1:9200"]
         username: "admin"
-        password: "admin"  
+        password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value  
         insecure: true
         index_type: trace-analytics-raw  
         
@@ -101,7 +102,7 @@ otel-service-map-pipeline:
     - opensearch:
         hosts: ["https://opensearch-node1:9200"]
         username: "admin"
-        password: "admin"  
+        password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value  
         insecure: true
         index_type: trace-analytics-service-map
         #index: otel-v1-apm-span-%{yyyy.MM.dd}
@@ -130,7 +131,7 @@ otel-metrics-pipeline:
     - opensearch:
         hosts: ["https://opensearch-node1:9200"]
         username: "admin"
-        password: "admin"  
+        password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value  
         insecure: true
         index_type: custom
         index: metrics-%{yyyy.MM}
