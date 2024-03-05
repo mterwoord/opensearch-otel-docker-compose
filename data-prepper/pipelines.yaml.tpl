@@ -14,8 +14,7 @@ otel-logs-pipeline:
         password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value 
         insecure: true
         index_type: custom
-        #index: raw-logs-%{yyyy.MM}
-        index: raw-logs-${/log.attributes.EnvironmentName}-%{yyyy.MM}
+        index: raw-logs-${/attributes/log.attributes.EnvironmentName}-%{yyyy.MM}
         #max_retries: 20
         bulk_size: 4
 #    - stdout:
