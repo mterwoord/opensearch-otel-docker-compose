@@ -11,9 +11,10 @@ otel-logs-pipeline:
     - opensearch:
         hosts: ["https://opensearch-node1:9200"]
         username: "admin"
-        password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value 
+        password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value         
         insecure: true
         index_type: custom
+        #index: raw-logs-%{yyyy.MM}
         index: raw-logs-${/attributes/log.attributes.EnvironmentName}-%{yyyy.MM}
         #max_retries: 20
         bulk_size: 4
@@ -72,7 +73,9 @@ raw-traces-pipeline:
         username: "admin"
         password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value  
         insecure: true
-        index_type: trace-analytics-raw  
+        trace-analytics-raw: true
+        index-type: custom
+        index: otel-v1-apm-span-${/attributes/span.attributes.EnvironmentName}-%{yyyy.MM}
         
 otel-service-map-pipeline:
   workers: 5
@@ -103,8 +106,9 @@ otel-service-map-pipeline:
         username: "admin"
         password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value  
         insecure: true
-        index_type: trace-analytics-service-map
-        #index: otel-v1-apm-span-%{yyyy.MM.dd}
+        trace-analytics-service-map: true
+        index-type: custom
+        index: otel-v1-apm-service-map-%{yyyy.MM}
         #max_retries: 20
         bulk_size: 4   
         
@@ -116,16 +120,17 @@ otel-metrics-pipeline:
       health_check_service: true
       ssl: false
       port: 21891
-  buffer:
-    bounded_blocking:
-      buffer_size: 1024 # max number of records the buffer accepts
-      batch_size: 1024 # max number of records the buffer drains after each read
+#  buffer:
+#    bounded_blocking:
+#      buffer_size: 1024 # max number of records the buffer accepts
+#      batch_size: 1024 # max number of records the buffer drains after each read
   processor:
-    - otel_metrics:
-        calculate_histogram_buckets: true
-        calculate_exponential_histogram_buckets: true
-        exponential_histogram_max_allowed_scale: 10
-        flatten_attributes: false
+    - otel_metrics_raw_processor:
+#    - otel_metrics:
+#        calculate_histogram_buckets: true
+#        calculate_exponential_histogram_buckets: true
+#        exponential_histogram_max_allowed_scale: 10
+#        flatten_attributes: false
   sink:
     - opensearch:
         hosts: ["https://opensearch-node1:9200"]
@@ -133,6 +138,6 @@ otel-metrics-pipeline:
         password: "%%PLACEHOLDER%%"  # Replace with OPENSEARCH_ADMIN_PASSWORD value  
         insecure: true
         index_type: custom
-        index: metrics-%{yyyy.MM}
+        index: metrics-otel-v1-${/attributes/metric.attributes.EnvironmentName}-%{yyyy.MM}
         #max_retries: 20
         bulk_size: 4
